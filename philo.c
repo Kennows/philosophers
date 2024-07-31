@@ -51,12 +51,12 @@ void	*philo(void *philos)
 	init_philo(info, &data);
 	if (data.id % 2 == 1)
 		usleep(500);
-	while (info->stop == 0 && data.times_eaten != info->meal_count)
+	while (info->stop == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
 	{
 		eating(info, &data);
 		data.times_eaten++;
 		if (data.times_eaten == info->meal_count)
-			info->ready++;
+			set_ready(info);
 		print_status(data.id, 's', info);
 		usleep(info->tts * 1000);
 		print_status(data.id, 't', info);
@@ -74,7 +74,7 @@ void	*watcher(void *philos)
 	while (info->stop == 0)
 	{
 		if (info->ready == info->philo_count)
-			info->stop = 1;
+			set_stop(info);
 		gettimeofday(&time, NULL);
 		i = 1;
 		while (i <= info->philo_count && info->stop == 0)
@@ -84,7 +84,7 @@ void	*watcher(void *philos)
 					>= info->ttd)
 			{
 				print_status(i, 'd', info);
-				info->stop = 1;
+				set_stop(info);
 			}
 			i++;
 		}

@@ -38,3 +38,17 @@ void	print_status(int philo, char action, t_philos *info)
 		printf("%ld %d died\n", time, philo);
 	pthread_mutex_unlock(info->locks[0]);
 }
+
+void	set_stop(t_philos *info)
+{
+	pthread_mutex_lock(info->locks[0]);
+	info->stop = 1;
+	pthread_mutex_unlock(info->locks[0]);
+}
+
+void	set_ready(t_philos *info)
+{
+	pthread_mutex_lock(info->locks[0]);
+	info->ready++;
+	pthread_mutex_unlock(info->locks[0]);
+}

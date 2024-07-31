@@ -52,5 +52,7 @@ int			create_threads(t_philos *philos, pthread_t **philo_id);
 void		*philo(void *philos);
 void		*watcher(void *philos);
 void		print_status(int philo, char action, t_philos *info);
+void		set_stop(t_philos *info);
+void		set_ready(t_philos *info);
 
 #endif

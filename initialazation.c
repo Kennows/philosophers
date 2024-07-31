@@ -96,14 +96,14 @@ int	create_threads(t_philos *philos, pthread_t **philo_id)
 	{
 		if (pthread_create(philo_id[i], NULL, *(philo), philos) != 0)
 		{
-			philos->stop = 1;
+			set_stop(philos);
 			return (-1);
 		}
 		i++;
 	}
 	if (pthread_create(philo_id[0], NULL, *(watcher), philos) != 0)
 	{
-		philos->stop = 1;
+		set_stop(philos);
 		return (-1);
 	}
 	return (1);
