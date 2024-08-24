@@ -27,8 +27,11 @@ typedef struct s_philos
 	int				tts;
 	int				meal_count;
 	int				ready;
-	struct timeval	**timer;
+	long				**timer;
 	pthread_mutex_t	**locks;
+	pthread_mutex_t	*write;
+	pthread_mutex_t	*check;
+	pthread_mutex_t	*init;
 	int				stop;
 
 }	t_philos;
@@ -37,6 +40,7 @@ typedef struct s_personal
 {
 	int	times_eaten;
 	int	id;
+	int	left_fork;
 	int	right_fork;
 }	t_personal;
 
@@ -54,5 +58,6 @@ void		*watcher(void *philos);
 void		print_status(int philo, char action, t_philos *info);
 void		set_stop(t_philos *info);
 void		set_ready(t_philos *info);
-
+long		get_time(t_philos *info);
+int		check_stop(t_philos *info);
 #endif

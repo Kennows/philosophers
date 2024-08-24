@@ -17,11 +17,17 @@ int	init_locks(t_philos *philos)
 	int	i;
 
 	i = 0;
-	philos->locks = malloc((philos->philo_count + 1) \
+	philos->write = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(philos->write, NULL);
+	philos->check = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(philos->check, NULL);
+	philos->init = malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(philos->init, NULL);
+	philos->locks = malloc((philos->philo_count) \
 		* sizeof(pthread_mutex_t *));
 	if (philos->locks == NULL)
 		return (-1);
-	while (i <= philos->philo_count)
+	while (i < philos->philo_count)
 	{
 		philos->locks[i] = malloc(sizeof (pthread_mutex_t));
 		if (philos->locks[i] == NULL)
@@ -40,15 +46,19 @@ int	init_locks(t_philos *philos)
 int	init_timers(t_philos *philos)
 {
 	int	i;
+	struct timeval	start;
+	long	time;
 
-	philos->timer = malloc(sizeof (struct timeval *) \
+	philos->timer = malloc(sizeof (long) \
 			* (philos->philo_count + 1));
 	if (philos->timer == NULL)
 		return (-1);
 	i = 0;
+	gettimeofday(&start, NULL);
+	time = start.tv_sec * 1000 + (long)(start.tv_usec / 1000);
 	while (i <= philos->philo_count)
 	{
-		philos->timer[i] = malloc(sizeof (struct timeval));
+		philos->timer[i] = malloc(sizeof (long));
 		if (philos->timer[i] == NULL)
 		{
 			while (--i >= 0)
@@ -56,7 +66,7 @@ int	init_timers(t_philos *philos)
 			free(philos->timer);
 			return (-1);
 		}
-		gettimeofday(philos->timer[i], NULL);
+		*philos->timer[i] = time;
 		i++;
 	}
 	return (1);

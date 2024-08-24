@@ -14,31 +14,31 @@
 
 void	eating(t_philos *info, t_personal *data)
 {
-	if (pthread_mutex_lock(info->locks[data->id]) == 0 && \
-			pthread_mutex_lock(info->locks[data->right_fork]) == 0)
-	{
-		print_status(data->id, 'f', info);
-		print_status(data->id, 'f', info);
-		gettimeofday(info->timer[data->id], NULL);
-		print_status(data->id, 'e', info);
-		usleep(info->tte * 1000);
-		pthread_mutex_unlock(info->locks[data->id]);
-		pthread_mutex_unlock(info->locks[data->right_fork]);
-	}
+	pthread_mutex_lock(info->locks[data->left_fork]);
+	print_status(data->id, 'f', info);
+	pthread_mutex_lock(info->locks[data->right_fork]);
+	print_status(data->id, 'f', info);
+	*info->timer[data->id] =  get_time(info);
+	print_status(data->id, 'e', info);
+	usleep(info->tte * 1000);
+	pthread_mutex_unlock(info->locks[data->left_fork]);
+	pthread_mutex_unlock(info->locks[data->right_fork]);
 }
 
 void	init_philo(t_philos *info, t_personal *data)
 {
 	static int	num = 1;
 
-	pthread_mutex_lock(info->locks[0]);
+	pthread_mutex_lock(info->init);
 	data->times_eaten = 0;
 	data->id = num++;
-	if (data->id == 1)
-		data->right_fork = info->philo_count;
+	data->left_fork = data->id - 1;
+	if (data->id == info->philo_count)
+		data->right_fork = 0;
 	else
-		data->right_fork = data->id - 1;
-	pthread_mutex_unlock(info->locks[0]);
+		data->right_fork = data->id;
+
+	pthread_mutex_unlock(info->init);
 	return ;
 }
 
@@ -51,7 +51,7 @@ void	*philo(void *philos)
 	init_philo(info, &data);
 	if (data.id % 2 == 1)
 		usleep(500);
-	while (info->stop == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
+	while (check_stop(info) == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
 	{
 		eating(info, &data);
 		data.times_eaten++;
@@ -68,20 +68,18 @@ void	*watcher(void *philos)
 {
 	int				i;
 	t_philos		*info;
-	struct timeval	time;
+	long			time;
 
 	info = (t_philos *)philos;
-	while (info->stop == 0)
+	while (check_stop(info) == 0)
 	{
 		if (info->ready == info->philo_count)
 			set_stop(info);
-		gettimeofday(&time, NULL);
 		i = 1;
-		while (i <= info->philo_count && info->stop == 0)
+		time = get_time(info);
+		while (i <= info->philo_count && check_stop(info) == 0)
 		{
-			if (((time.tv_sec - info->timer[i]->tv_sec) * 1000 + \
-					(time.tv_usec - info->timer[i]->tv_usec) / 1000) \
-					>= info->ttd)
+			if (time - *info->timer[i] >= info->ttd)
 			{
 				print_status(i, 'd', info);
 				set_stop(info);
@@ -116,7 +114,12 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i <= philos.philo_count)
 		pthread_join(*philo_id[i++], NULL);
+	i = 0;
+	while (i < philos.philo_count)
+		pthread_mutex_destroy(philos.locks[i++]);
 	free_array((void **)philo_id, philos.philo_count + 1);
-	free_array((void **)philos.locks, philos.philo_count + 1);
+	free_array((void **)philos.locks, philos.philo_count);
 	free_array((void **)philos.timer, philos.philo_count + 1);
+	//free(philos.write);
+	//free(philos.check);
 }
