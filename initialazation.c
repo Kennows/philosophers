@@ -66,7 +66,10 @@ int	init_timers(t_philos *philos)
 			free(philos->timer);
 			return (-1);
 		}
-		*philos->timer[i] = time;
+		if (i == 0)
+			*philos->timer[i] = time;
+		else
+			*philos->timer[i] = 0;
 		i++;
 	}
 	return (1);
@@ -106,14 +109,14 @@ int	create_threads(t_philos *philos, pthread_t **philo_id)
 	{
 		if (pthread_create(philo_id[i], NULL, *(philo), philos) != 0)
 		{
-			set_stop(philos);
+			check_stop(philos, SET);
 			return (-1);
 		}
 		i++;
 	}
 	if (pthread_create(philo_id[0], NULL, *(watcher), philos) != 0)
 	{
-		set_stop(philos);
+		check_stop(philos, SET);
 		return (-1);
 	}
 	return (1);

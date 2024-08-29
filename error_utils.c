@@ -63,3 +63,21 @@ int	error_handler(char *err)
 	write(2, err, len);
 	return (1);
 }
+
+void	clean_up(t_philos *info, pthread_t **philo_id)
+{
+	int i;
+
+	i = 0;
+	while (i < info->philo_count)
+		pthread_mutex_destroy(info->locks[i++]);
+	pthread_mutex_destroy(info->init);
+	pthread_mutex_destroy(info->write);
+	pthread_mutex_destroy(info->check);
+	free_array((void **)philo_id, info->philo_count + 1);
+	free_array((void **)info->locks, info->philo_count);
+	free_array((void **)info->timer, info->philo_count + 1);
+	free(info->init);
+	free(info->write);
+	free(info->check);
+}

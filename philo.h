@@ -19,6 +19,9 @@
 # include <sys/time.h>
 # include <unistd.h>
 
+# define SET 0
+# define CHECK 1
+
 typedef struct s_philos
 {
 	int				philo_count;
@@ -56,8 +59,8 @@ int			create_threads(t_philos *philos, pthread_t **philo_id);
 void		*philo(void *philos);
 void		*watcher(void *philos);
 void		print_status(int philo, char action, t_philos *info);
-void		set_stop(t_philos *info);
-void		set_ready(t_philos *info);
-long		get_time(t_philos *info);
-int		check_stop(t_philos *info);
+long		check_time(t_philos *info, int mode, int i);
+int		check_stop(t_philos *info, int mode);
+int		check_ready(t_philos *info, int mode);
+void		clean_up(t_philos *info, pthread_t **philo_id);
 #endif

@@ -14,11 +14,22 @@
 
 void	eating(t_philos *info, t_personal *data)
 {
-	pthread_mutex_lock(info->locks[data->left_fork]);
-	print_status(data->id, 'f', info);
-	pthread_mutex_lock(info->locks[data->right_fork]);
-	print_status(data->id, 'f', info);
-	*info->timer[data->id] =  get_time(info);
+	if (data->id % 2 == 0)
+	{
+		pthread_mutex_lock(info->locks[data->left_fork]);
+		print_status(data->id, 'f', info);
+		pthread_mutex_lock(info->locks[data->right_fork]);
+		print_status(data->id, 'f', info);
+	}
+	else
+	{
+	
+		pthread_mutex_lock(info->locks[data->right_fork]);
+		print_status(data->id, 'f', info);
+			pthread_mutex_lock(info->locks[data->left_fork]);
+		print_status(data->id, 'f', info);
+	}
+	check_time(info, SET, data->id);
 	print_status(data->id, 'e', info);
 	usleep(info->tte * 1000);
 	pthread_mutex_unlock(info->locks[data->left_fork]);
@@ -49,14 +60,12 @@ void	*philo(void *philos)
 
 	info = (t_philos *)philos;
 	init_philo(info, &data);
-	if (data.id % 2 == 1)
-		usleep(500);
-	while (check_stop(info) == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
+	while (check_stop(info, CHECK) == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
 	{
 		eating(info, &data);
 		data.times_eaten++;
 		if (data.times_eaten == info->meal_count)
-			set_ready(info);
+			check_ready(info, SET);
 		print_status(data.id, 's', info);
 		usleep(info->tts * 1000);
 		print_status(data.id, 't', info);
@@ -71,18 +80,18 @@ void	*watcher(void *philos)
 	long			time;
 
 	info = (t_philos *)philos;
-	while (check_stop(info) == 0)
+	while (check_stop(info, CHECK) == 0)
 	{
-		if (info->ready == info->philo_count)
-			set_stop(info);
+		if (check_ready(info, CHECK) == 1)
+			check_stop(info, SET);
 		i = 1;
-		time = get_time(info);
-		while (i <= info->philo_count && check_stop(info) == 0)
+		time = check_time(info, CHECK, 0);
+		while (i <= info->philo_count && check_stop(info, CHECK) == 0)
 		{
-			if (time - *info->timer[i] >= info->ttd)
+			if (time - check_time(info, CHECK, i) >= info->ttd)
 			{
 				print_status(i, 'd', info);
-				set_stop(info);
+				check_stop(info, SET);
 			}
 			i++;
 		}
@@ -114,12 +123,5 @@ int	main(int argc, char **argv)
 	i = 0;
 	while (i <= philos.philo_count)
 		pthread_join(*philo_id[i++], NULL);
-	i = 0;
-	while (i < philos.philo_count)
-		pthread_mutex_destroy(philos.locks[i++]);
-	free_array((void **)philo_id, philos.philo_count + 1);
-	free_array((void **)philos.locks, philos.philo_count);
-	free_array((void **)philos.timer, philos.philo_count + 1);
-	//free(philos.write);
-	//free(philos.check);
+	clean_up(&philos, philo_id);
 }
