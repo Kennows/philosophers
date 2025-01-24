@@ -60,8 +60,17 @@ void	*philo(void *philos)
 
 	info = (t_philos *)philos;
 	init_philo(info, &data);
-	while (check_stop(info, CHECK) == 0 && data.times_eaten != info->meal_count && info->philo_count > 1)
+	while (check_stop(info, CHECK) == 0 && data.times_eaten != info->meal_count)
 	{
+		if (info->philo_count == 1)
+		{
+			pthread_mutex_lock(info->locks[data.right_fork]);
+			print_status(data.id, 'f', info);
+			usleep(info->ttd * 1000);
+			pthread_mutex_unlock(info->locks[data.right_fork]);
+			return (NULL);
+
+		}
 		eating(info, &data);
 		data.times_eaten++;
 		if (data.times_eaten == info->meal_count)
