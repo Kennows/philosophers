@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 13:45:09 by mheinone          #+#    #+#             */
-/*   Updated: 2024/06/17 15:44:54 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/24 18:18:26 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 # include <stdlib.h>
 # include <sys/time.h>
 # include <unistd.h>
-
+# include <sys/types.h>
 # define SET 0
 # define CHECK 1
 
@@ -30,12 +30,12 @@ typedef struct s_philos
 	int				tts;
 	int				meal_count;
 	int				ready;
-	long				**timer;
+	int				stop;
+	long			**timer;
 	pthread_mutex_t	**locks;
 	pthread_mutex_t	*write;
 	pthread_mutex_t	*check;
 	pthread_mutex_t	*init;
-	int				stop;
 
 }	t_philos;
 
@@ -60,7 +60,9 @@ void		*philo(void *philos);
 void		*watcher(void *philos);
 void		print_status(int philo, char action, t_philos *info);
 long		check_time(t_philos *info, int mode, int i);
-int		check_stop(t_philos *info, int mode);
-int		check_ready(t_philos *info, int mode);
+int			check_stop(t_philos *info, int mode);
+int			check_ready(t_philos *info, int mode);
 void		clean_up(t_philos *info, pthread_t **philo_id);
+void		ft_sleep(t_philos *info, int sleep_time);
+long		get_time(void);
 #endif

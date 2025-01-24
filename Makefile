@@ -4,7 +4,8 @@ SRCS = philo.c \
 	   error_utils.c \
 	   ft_atol.c \
 	   initialazation.c \
-	   utils.c
+	   utils.c \
+	   time.c
 
 OBJ = $(SRCS:.c=.o)
 

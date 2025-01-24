@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 14:03:58 by mheinone          #+#    #+#             */
-/*   Updated: 2024/06/17 15:28:51 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/24 17:50:48 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,17 +45,15 @@ int	init_locks(t_philos *philos)
 
 int	init_timers(t_philos *philos)
 {
-	int	i;
-	struct timeval	start;
-	long	time;
+	int				i;
+	long			time;
 
 	philos->timer = malloc(sizeof (long) \
 			* (philos->philo_count + 1));
 	if (philos->timer == NULL)
 		return (-1);
 	i = 0;
-	gettimeofday(&start, NULL);
-	time = start.tv_sec * 1000 + (long)(start.tv_usec / 1000);
+	time = get_time();
 	while (i <= philos->philo_count)
 	{
 		philos->timer[i] = malloc(sizeof (long));
@@ -67,10 +65,9 @@ int	init_timers(t_philos *philos)
 			return (-1);
 		}
 		if (i == 0)
-			*philos->timer[i] = time;
+			*philos->timer[i++] = time;
 		else
-			*philos->timer[i] = 0;
-		i++;
+			*philos->timer[i++] = 0;
 	}
 	return (1);
 }

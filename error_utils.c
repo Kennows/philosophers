@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   error_handler.c                                    :+:      :+:    :+:   */
+/*   error_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:19:14 by mheinone          #+#    #+#             */
-/*   Updated: 2024/05/31 14:32:23 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/24 16:45:33 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ int	error_handler(char *err)
 
 void	clean_up(t_philos *info, pthread_t **philo_id)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < info->philo_count)

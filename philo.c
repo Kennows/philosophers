@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 13:45:01 by mheinone          #+#    #+#             */
-/*   Updated: 2024/06/17 15:49:35 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/24 21:02:24 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,15 +23,14 @@ void	eating(t_philos *info, t_personal *data)
 	}
 	else
 	{
-	
 		pthread_mutex_lock(info->locks[data->right_fork]);
 		print_status(data->id, 'f', info);
-			pthread_mutex_lock(info->locks[data->left_fork]);
+		pthread_mutex_lock(info->locks[data->left_fork]);
 		print_status(data->id, 'f', info);
 	}
 	check_time(info, SET, data->id);
 	print_status(data->id, 'e', info);
-	usleep(info->tte * 1000);
+	ft_sleep(info, info->tte);
 	pthread_mutex_unlock(info->locks[data->left_fork]);
 	pthread_mutex_unlock(info->locks[data->right_fork]);
 }
@@ -43,13 +42,17 @@ void	init_philo(t_philos *info, t_personal *data)
 	pthread_mutex_lock(info->init);
 	data->times_eaten = 0;
 	data->id = num++;
-	data->left_fork = data->id - 1;
+	data->right_fork = data->id - 1;
 	if (data->id == info->philo_count)
-		data->right_fork = 0;
+		data->left_fork = 0;
 	else
-		data->right_fork = data->id;
-
+		data->left_fork = data->id;
 	pthread_mutex_unlock(info->init);
+	if (data->id % 2 != 0)
+	{
+		print_status(data->id, 't', info);
+		usleep(info->tte * 500);
+	}
 	return ;
 }
 
@@ -69,14 +72,13 @@ void	*philo(void *philos)
 			usleep(info->ttd * 1000);
 			pthread_mutex_unlock(info->locks[data.right_fork]);
 			return (NULL);
-
 		}
 		eating(info, &data);
 		data.times_eaten++;
 		if (data.times_eaten == info->meal_count)
 			check_ready(info, SET);
 		print_status(data.id, 's', info);
-		usleep(info->tts * 1000);
+		ft_sleep(info, info->tts);
 		print_status(data.id, 't', info);
 	}
 	return (NULL);
@@ -104,7 +106,7 @@ void	*watcher(void *philos)
 			}
 			i++;
 		}
-		usleep(500);
+		usleep(100);
 	}
 	return (NULL);
 }

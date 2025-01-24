@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/17 15:43:59 by mheinone          #+#    #+#             */
-/*   Updated: 2024/06/17 15:44:15 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/24 17:54:22 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,28 +47,6 @@ int	check_stop(t_philos *info, int mode)
 		ret = info->stop;
 	pthread_mutex_unlock(info->check);
 	return (ret);
-}
-
-long	check_time(t_philos *info, int mode, int i)
-{
-	struct timeval	current;
-	long	time;
-
-	pthread_mutex_lock(info->check);
-	gettimeofday(&current, NULL);
-	time = current.tv_sec * 1000 + (long)(current.tv_usec / 1000);
-	if (mode == SET)
-		*info->timer[i] = time - *info->timer[0];
-	if (mode == CHECK)
-	{
-		if (i == 0)
-			time = time - *info->timer[0];
-		else
-			time = *info->timer[i];
-
-	}
-	pthread_mutex_unlock(info->check);
-	return (time);
 }
 
 int	check_ready(t_philos *info, int mode)
