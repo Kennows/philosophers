@@ -5,7 +5,8 @@ SRCS = philo.c \
 	   ft_atol.c \
 	   initialazation.c \
 	   utils.c \
-	   time.c
+	   time.c \
+	   start_up.c
 
 OBJ = $(SRCS:.c=.o)
 

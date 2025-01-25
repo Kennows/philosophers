@@ -6,13 +6,13 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/29 13:19:14 by mheinone          #+#    #+#             */
-/*   Updated: 2025/01/24 16:45:33 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/25 17:21:37 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	check_input(char **argv)
+int	check_input(char **argv)
 {
 	int	i;
 	int	j;
@@ -24,14 +24,13 @@ void	check_input(char **argv)
 		while (argv[i][j])
 		{
 			if ((argv[i][j] > '9' || argv[i][j] < '0') && argv[i][j] != ' ' \
-					&& argv[i][j] != '-')
-				error_handler("Non-numeric character\n");
-			if (j > 11)
-				error_handler("Value exceeds integer limits!\n");
+					&& argv[i][j] != '-' && j <= 11)
+				return (-1);
 			j++;
 		}
 		i++;
 	}
+	return (0);
 }
 
 void	free_array(void **arr, int nbr)
@@ -39,6 +38,8 @@ void	free_array(void **arr, int nbr)
 	int	i;
 
 	i = 0;
+	if (!arr)
+		return ;
 	while (i < nbr)
 	{
 		if (arr[i])
@@ -48,8 +49,11 @@ void	free_array(void **arr, int nbr)
 		}
 		i++;
 	}
-	free(arr);
-	arr = NULL;
+	if (arr != NULL)
+	{	
+		free(arr);
+		arr = NULL;
+	}
 }
 
 int	error_handler(char *err)
@@ -64,20 +68,31 @@ int	error_handler(char *err)
 	return (1);
 }
 
-void	clean_up(t_philos *info, pthread_t **philo_id)
+void	free_all(t_philos *info, pthread_t **philo_id)
+{
+	free_array((void **)philo_id, info->philo_count + 1);
+	free_array((void **)info->locks, info->philo_count);
+	free_array((void **)info->timer, info->philo_count + 1);
+	if (info->init)
+		free(info->init);
+	if (info->write)
+		free(info->write);
+	if (info->check)
+		free(info->check);
+}
+
+void	clean_up(t_philos *info, pthread_t **philo_id, int lvl)
 {
 	int	i;
 
 	i = 0;
-	while (i < info->philo_count)
-		pthread_mutex_destroy(info->locks[i++]);
-	pthread_mutex_destroy(info->init);
-	pthread_mutex_destroy(info->write);
-	pthread_mutex_destroy(info->check);
-	free_array((void **)philo_id, info->philo_count + 1);
-	free_array((void **)info->locks, info->philo_count);
-	free_array((void **)info->timer, info->philo_count + 1);
-	free(info->init);
-	free(info->write);
-	free(info->check);
+	if (lvl > 1)
+	{
+		while (i < info->philo_count)
+			pthread_mutex_destroy(info->locks[i++]);
+		pthread_mutex_destroy(info->init);
+		pthread_mutex_destroy(info->write);
+		pthread_mutex_destroy(info->check);
+	}
+	free_all(info, philo_id);
 }

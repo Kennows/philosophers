@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 13:45:01 by mheinone          #+#    #+#             */
-/*   Updated: 2025/01/24 21:02:24 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:50:47 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,20 +14,10 @@
 
 void	eating(t_philos *info, t_personal *data)
 {
-	if (data->id % 2 == 0)
-	{
-		pthread_mutex_lock(info->locks[data->left_fork]);
-		print_status(data->id, 'f', info);
-		pthread_mutex_lock(info->locks[data->right_fork]);
-		print_status(data->id, 'f', info);
-	}
-	else
-	{
-		pthread_mutex_lock(info->locks[data->right_fork]);
-		print_status(data->id, 'f', info);
-		pthread_mutex_lock(info->locks[data->left_fork]);
-		print_status(data->id, 'f', info);
-	}
+	pthread_mutex_lock(info->locks[data->right_fork]);
+	print_status(data->id, 'f', info);
+	pthread_mutex_lock(info->locks[data->left_fork]);
+	print_status(data->id, 'f', info);
 	check_time(info, SET, data->id);
 	print_status(data->id, 'e', info);
 	ft_sleep(info, info->tte);
@@ -48,7 +38,7 @@ void	init_philo(t_philos *info, t_personal *data)
 	else
 		data->left_fork = data->id;
 	pthread_mutex_unlock(info->init);
-	if (data->id % 2 != 0)
+	if (data->id % 2 != 0 && info->ready == 0 && info->philo_count > 1)
 	{
 		print_status(data->id, 't', info);
 		usleep(info->tte * 500);
@@ -106,7 +96,7 @@ void	*watcher(void *philos)
 			}
 			i++;
 		}
-		usleep(100);
+		usleep(500);
 	}
 	return (NULL);
 }
@@ -119,20 +109,21 @@ int	main(int argc, char **argv)
 
 	if (argc > 6 || argc < 5)
 		return (error_handler("Wrong number of arguments!\n"));
-	check_input(argv);
+	if (check_input(argv) == -1)
+		return (error_handler("Invalid input!\n"));
 	if (populate_struct(&philos, argv) == -1)
-		return (error_handler("Invalid values in arguments!\n"));
-	if (init_locks(&philos) == -1)
-		return (error_handler("Failed to initialize mutex\n"));
+		return (error_handler("Invalid input!\n"));
 	philo_id = init_threads(&philos);
 	if (philo_id == NULL)
-		return (error_handler("Malloc fail!\n"));
-	if (init_timers(&philos) == -1)
-		return (error_handler("Malloc fail!\n"));
-	if (create_threads(&philos, philo_id) == -1)
-		return (error_handler("Failed to create thread!\n"));
-	i = 0;
-	while (i <= philos.philo_count)
-		pthread_join(*philo_id[i++], NULL);
-	clean_up(&philos, philo_id);
+	{
+		error_handler("Failed to initialize!\n");
+		return (1);
+	}
+	i = start_up(&philos, philo_id);
+	if (i != 0)
+		error_handler("Failed to initialize!\n");
+	if (i == 0)
+		while (i <= philos.philo_count)
+			pthread_join(*philo_id[i++], NULL);
+	clean_up(&philos, philo_id, i);
 }

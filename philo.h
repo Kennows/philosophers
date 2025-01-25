@@ -6,7 +6,7 @@
 /*   By: mheinone <mheinone@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 13:45:09 by mheinone          #+#    #+#             */
-/*   Updated: 2025/01/24 18:18:26 by mheinone         ###   ########.fr       */
+/*   Updated: 2025/01/25 18:26:55 by mheinone         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ typedef struct s_personal
 	int	right_fork;
 }	t_personal;
 
-void		check_input(char **argv);
+int			check_input(char **argv);
 int			error_handler(char *err);
 void		free_array(void **arr, int nbr);
 long		ft_atol(char *str);
@@ -62,7 +62,8 @@ void		print_status(int philo, char action, t_philos *info);
 long		check_time(t_philos *info, int mode, int i);
 int			check_stop(t_philos *info, int mode);
 int			check_ready(t_philos *info, int mode);
-void		clean_up(t_philos *info, pthread_t **philo_id);
+void		clean_up(t_philos *info, pthread_t **philo_id, int lvl);
 void		ft_sleep(t_philos *info, int sleep_time);
 long		get_time(void);
+int			start_up(t_philos *philos, pthread_t **philo_id);
 #endif
